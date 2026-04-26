@@ -1,17 +1,22 @@
-HPL Website v4 - calmer neon + manual creator rankings + editor
+HPL Website v3 — Realistic Style Edition
 
-WHAT CHANGED:
-- Less glow and less animation.
-- Creator Points is manual and empty by default. Main list creators are not automatically counted.
-- Add chosen creators in data.js under creators.
-- Added editor.html: edit levels/creators and export a new data.js.
+How to edit:
+1. Open settings.js to change title, Discord, rules, theme, and display options.
+2. Open data.js to add/change levels.
+3. Level names use showcaseLink.
+4. WR text uses wrLink.
+5. Creator names use creatorLink.
+6. Player names use playerLink.
+7. Points are used to auto-rank players and creators.
 
-HOW TO EDIT WITH editor.html:
-1. Open editor.html in your browser.
-2. Add/edit levels or creators.
-3. Click Download data.js.
-4. On GitHub, replace data.js and Commit changes.
+Easy themes:
+- slate
+- blue
+- gold
+- minimal
 
-GITHUB PAGES:
-Upload all files to repo root, then Settings > Pages > Deploy from branch > main > root.
-You can edit files directly with the pencil icon, or press . in your repo to use github.dev.
+How to add a level:
+Copy one object in data.js, paste it below, then change rank, level, ID, creator, WR, links, status, points, and notes.
+
+How to host on GitHub Pages:
+Upload index.html, style.css, script.js, settings.js, data.js, and README.txt to a public GitHub repo. Then use Settings > Pages > Deploy from branch > main > /root.

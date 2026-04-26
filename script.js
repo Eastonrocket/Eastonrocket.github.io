@@ -1,115 +1,119 @@
-const state = { themeIndex: 0, themes: ["neon", "clean", "terminal"], activeTab: "main" };
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 function safe(text) {
-  return String(text ?? "").replace(/[&<>'"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#039;", '"':"&quot;" }[c]));
-}
-function link(url, text) {
-  if (!url) return safe(text);
-  return `<a href="${safe(url)}" target="_blank" rel="noopener noreferrer">${safe(text)}</a>`;
-}
-function byRank(a,b){ return Number(a.rank || 9999) - Number(b.rank || 9999); }
-
-function getFilteredLevels() {
-  const q = document.getElementById("search").value.toLowerCase().trim();
-  const sortMode = document.getElementById("sort-mode").value;
-  let rows = [...HPL_DATA.levels];
-  if (q) {
-    rows = rows.filter(l => [l.rank,l.name,l.id,l.creator,l.wr,l.wrPlayer,l.notes].join(" ").toLowerCase().includes(q));
-  }
-  if (sortMode === "points") rows.sort((a,b) => Number(b.points||0)-Number(a.points||0));
-  else if (sortMode === "wr") rows.sort((a,b) => String(a.wr).localeCompare(String(b.wr)));
-  else rows.sort(byRank);
-  return rows;
+  return String(text ?? "").replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[m]));
 }
 
-function renderMain() {
-  const rows = getFilteredLevels();
-  document.getElementById("main").innerHTML = rows.map(l => `
-    <article class="level-card">
-      <div class="level-top">
-        <div><span class="rank">#${safe(l.rank)}</span><span class="level-title">${link(l.showcaseUrl, l.name)}</span></div>
-        <div class="points">${safe(l.points)} pts</div>
+function link(label, url, className = "") {
+  if (!url) return `<span class="${className}">${safe(label)}</span>`;
+  return `<a class="${className}" href="${safe(url)}" target="_blank" rel="noopener noreferrer">${safe(label)}</a>`;
+}
+
+function applySettings() {
+  document.body.dataset.theme = SITE_SETTINGS.theme || "slate";
+  $("#siteTitle").textContent = SITE_SETTINGS.title;
+  $("#subtitle").textContent = SITE_SETTINGS.subtitle;
+  $("#siteDescription").textContent = SITE_SETTINGS.description;
+  $("#discordLink").href = SITE_SETTINGS.discord;
+  $("#footerText").textContent = SITE_SETTINGS.footer;
+
+  $("#normalRules").innerHTML = SITE_SETTINGS.normalRules.map(([title, text]) => `<li><strong>${safe(title)}</strong><p>${safe(text)}</p></li>`).join("");
+  $("#submissionRules").innerHTML = SITE_SETTINGS.submissionRules.map(([title, text]) => `<li><strong>${safe(title)}</strong><p>${safe(text)}</p></li>`).join("");
+  $("#submitFormat").innerHTML = SITE_SETTINGS.submitFormat.map(item => `<li>${safe(item)}</li>`).join("");
+}
+
+function filteredLevels() {
+  const q = $("#searchBox").value.toLowerCase().trim();
+  const status = $("#statusFilter").value;
+  return LEVELS
+    .slice()
+    .sort((a, b) => Number(a.rank) - Number(b.rank))
+    .filter(level => {
+      const blob = `${level.rank} ${level.level} ${level.id} ${level.creator} ${level.player} ${level.wr} ${level.notes}`.toLowerCase();
+      return (!q || blob.includes(q)) && (status === "all" || level.status === status);
+    });
+}
+
+function renderLevels() {
+  const compact = SITE_SETTINGS.compactCards;
+  $("#levelList").innerHTML = filteredLevels().map(level => `
+    <article class="level-card ${compact ? "compact" : ""} ${level.status === "verified" ? "verified-card" : ""}">
+      <div class="rank-box">#${safe(level.rank)}</div>
+      <div class="level-main">
+        <h3>${link(level.level, level.showcaseLink, "level-link")}</h3>
+        <div class="meta-line">
+          ${SITE_SETTINGS.showIDs ? `<span>ID: <b>${safe(level.id)}</b></span>` : ""}
+          <span>Creator: ${link(level.creator, level.creatorLink)}</span>
+          <span>WR: ${link(level.wr, level.wrLink, "wr-link")}</span>
+          ${SITE_SETTINGS.showPoints ? `<span>${safe(level.points)} pts</span>` : ""}
+        </div>
+        ${SITE_SETTINGS.showNotes ? `<p class="notes">${safe(level.notes)}</p>` : ""}
       </div>
-      <div class="meta">
-        <span class="badge">ID: ${safe(l.id)}</span>
-        <span class="badge">Creator: ${link(l.creatorUrl, l.creator)}</span>
-        <span class="badge">WR: ${link(l.wrUrl, l.wr)} by ${safe(l.wrPlayer || "Unknown")}</span>
-        <span class="badge ${String(l.wr).includes("100") ? "verified" : ""}">${safe(l.notes || "No notes")}</span>
-      </div>
+      <span class="status ${level.status}">${safe(level.status)}</span>
     </article>
   `).join("");
 }
 
 function renderRecords() {
-  const rows = [...HPL_DATA.levels].sort(byRank);
-  document.getElementById("records").innerHTML = rows.map(l => `
-    <article class="level-card">
-      <div><span class="rank">#${safe(l.rank)}</span> ${link(l.wrUrl, l.wr)} on ${link(l.showcaseUrl, l.name)}</div>
-      <div class="meta"><span class="badge">Player: ${safe(l.wrPlayer)}</span><span class="badge">Creator: ${link(l.creatorUrl, l.creator)}</span></div>
-    </article>
+  $("#recordsList").innerHTML = LEVELS.slice().sort((a,b)=>a.rank-b.rank).map(level => `
+    <div class="table-row">
+      <span>${link(level.level, level.showcaseLink)}</span>
+      <span>${link(level.player, level.playerLink)}</span>
+      <span>${link(level.wr, level.wrLink)}</span>
+      <span>${safe(level.notes)}</span>
+    </div>
   `).join("");
 }
 
 function pointTotals(key) {
-  const totals = new Map();
-  HPL_DATA.levels.forEach(l => {
-    const name = l[key] || "Unknown";
-    if (!totals.has(name)) totals.set(name, { name, points: 0, best: [] });
-    totals.get(name).points += Number(l.points || 0);
-    totals.get(name).best.push(`#${l.rank} ${l.name}`);
-  });
-  return [...totals.values()].sort((a,b)=>b.points-a.points);
-}
-function renderScores(target, key, title) {
-  const rows = pointTotals(key);
-  document.getElementById(target).innerHTML = `<div class="grid">${rows.map((p,i)=>`
-    <article class="score-card">
-      <h3>#${i+1} ${safe(p.name)}</h3>
-      <p class="points">${safe(p.points)} points</p>
-      <p class="meta">${safe(p.best.join(", "))}</p>
-    </article>
-  `).join("")}</div>`;
-}
-function renderCreators() {
-  const rows = [...(HPL_DATA.creators || [])].sort((a,b)=>Number(b.totalLevels||0)-Number(a.totalLevels||0));
-  if (!rows.length) {
-    document.getElementById("creators").innerHTML = `<article class="info-card"><h3>No creator rankings yet</h3><p>Add chosen creators in <b>data.js</b> under <b>creators</b>. The main list does not automatically count creators.</p></article>`;
-    return;
+  const map = new Map();
+  for (const level of LEVELS) {
+    const name = level[key] || "Unknown";
+    const linkKey = key + "Link";
+    const current = map.get(name) || { name, points: 0, best: [], link: level[linkKey] };
+    current.points += Number(level.points || 0);
+    current.best.push(`#${level.rank} ${level.level}`);
+    if (!current.link && level[linkKey]) current.link = level[linkKey];
+    map.set(name, current);
   }
-  document.getElementById("creators").innerHTML = `<div class="grid">${rows.map((c,i)=>`
-    <article class="score-card">
-      <h3>#${i+1} ${link(c.url, c.name)}</h3>
-      <p class="points">${safe(c.totalLevels)} accepted levels</p>
-      <p class="meta">${safe(c.notes || "")}</p>
-    </article>
-  `).join("")}</div>`;
-}
-function renderRules() {
-  const normal = HPL_DATA.normalRules.map(r => `<article class="info-card"><h3>${safe(r[0])}</h3><p>${safe(r[1])}</p></article>`).join("");
-  const sub = HPL_DATA.submissionRules.map(r => `<article class="info-card"><h3>${safe(r[0])}</h3><p>${safe(r[1])}</p></article>`).join("");
-  document.getElementById("rules").innerHTML = `<h2>Normal List Rules</h2><div class="grid">${normal}</div><h2>Submission Rules</h2><div class="grid">${sub}</div>`;
-}
-function renderChanges() {
-  document.getElementById("changes").innerHTML = HPL_DATA.changelog.map(c => `<article class="info-card">${safe(c)}</article>`).join("");
-}
-function renderAll() {
-  document.title = HPL_DATA.site.title;
-  document.getElementById("site-title").textContent = HPL_DATA.site.title;
-  document.getElementById("site-subtitle").textContent = HPL_DATA.site.subtitle;
-  document.getElementById("discord-link").href = HPL_DATA.site.discord;
-  renderMain(); renderRecords(); renderScores("players","wrPlayer"); renderCreators(); renderRules(); renderChanges();
+  return [...map.values()].sort((a,b)=>b.points-a.points);
 }
 
-document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
-  document.querySelectorAll(".tab,.panel").forEach(el => el.classList.remove("active"));
-  btn.classList.add("active");
-  document.getElementById(btn.dataset.tab).classList.add("active");
-}));
-document.getElementById("search").addEventListener("input", renderMain);
-document.getElementById("sort-mode").addEventListener("change", renderMain);
-document.getElementById("theme-toggle").addEventListener("click", () => {
-  state.themeIndex = (state.themeIndex + 1) % state.themes.length;
-  document.body.className = state.themes[state.themeIndex] === "neon" ? "" : state.themes[state.themeIndex];
-});
+function renderPointList(selector, key) {
+  const rows = pointTotals(key).map((item, index) => `
+    <div class="table-row ranked-row">
+      <span>#${index + 1}</span>
+      <span>${link(item.name, item.link)}</span>
+      <span><b>${item.points}</b> pts</span>
+      <span>${safe(item.best.slice(0, 3).join(", "))}</span>
+    </div>
+  `).join("");
+  $(selector).innerHTML = rows;
+}
 
-renderAll();
+function setupTabs() {
+  $$(".tab").forEach(button => {
+    button.addEventListener("click", () => {
+      $$(".tab").forEach(b => b.classList.remove("active"));
+      $$(".panel").forEach(p => p.classList.remove("active-panel"));
+      button.classList.add("active");
+      $(`#${button.dataset.tab}`).classList.add("active-panel");
+    });
+  });
+}
+
+function init() {
+  applySettings();
+  setupTabs();
+  renderLevels();
+  renderRecords();
+  renderPointList("#playerList", "player");
+  renderPointList("#creatorList", "creator");
+  $("#searchBox").addEventListener("input", renderLevels);
+  $("#statusFilter").addEventListener("change", renderLevels);
+}
+
+init();

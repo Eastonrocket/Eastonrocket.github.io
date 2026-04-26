@@ -3,51 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HPL</title>
+  <title>HPL — Humanly Possible List</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-glow"></div>
-    <h1 id="site-title">HPL</h1>
-    <p id="site-subtitle"></p>
-    <div class="hero-actions">
-      <a id="discord-link" class="button" target="_blank" rel="noopener">Join Discord</a>
-      <button id="theme-toggle" class="button ghost">Switch Style</button>
+  <header class="site-header">
+    <div class="header-inner">
+      <p class="eyebrow" id="subtitle"></p>
+      <h1 id="siteTitle">HPL</h1>
+      <p class="description" id="siteDescription"></p>
+      <div class="header-actions">
+        <a id="discordLink" class="button primary" href="#" target="_blank" rel="noopener noreferrer">Join Discord</a>
+        <a class="button" href="#rules">Rules</a>
+      </div>
     </div>
   </header>
 
-  <main class="wrap">
-    <nav class="tabs">
-      <button class="tab active" data-tab="main">Main List</button>
-      <button class="tab" data-tab="records">Records</button>
-      <button class="tab" data-tab="players">Player Points</button>
-      <button class="tab" data-tab="creators">Creator Points</button>
-      <button class="tab" data-tab="rules">Rules</button>
-      <button class="tab" data-tab="changes">Changelog</button>
-    </nav>
+  <nav class="tabs" aria-label="Site sections">
+    <button class="tab active" data-tab="list">Main List</button>
+    <button class="tab" data-tab="records">Records</button>
+    <button class="tab" data-tab="players">Players</button>
+    <button class="tab" data-tab="creators">Creators</button>
+    <button class="tab" data-tab="rules">Rules</button>
+  </nav>
 
+  <main class="page">
     <section class="toolbar">
-      <input id="search" placeholder="Search levels, creators, players, IDs..." />
-      <select id="sort-mode">
-        <option value="rank">Sort by rank</option>
-        <option value="points">Sort by points</option>
-        <option value="wr">Sort by WR text</option>
+      <input id="searchBox" type="search" placeholder="Search levels, creators, players, IDs..." />
+      <select id="statusFilter">
+        <option value="all">All statuses</option>
+        <option value="verified">Verified</option>
+        <option value="unverified">Unverified</option>
       </select>
     </section>
 
-    <section id="main" class="panel active"></section>
-    <section id="records" class="panel"></section>
-    <section id="players" class="panel"></section>
-    <section id="creators" class="panel"></section>
-    <section id="rules" class="panel"></section>
-    <section id="changes" class="panel"></section>
+    <section id="list" class="panel active-panel">
+      <div class="section-heading">
+        <h2>Main List</h2>
+        <p>Click a level, WR, creator, or player to open its link.</p>
+      </div>
+      <div id="levelList" class="level-list"></div>
+    </section>
+
+    <section id="records" class="panel">
+      <div class="section-heading"><h2>World Records</h2><p>Best progress and completions currently tracked.</p></div>
+      <div id="recordsList" class="table-list"></div>
+    </section>
+
+    <section id="players" class="panel">
+      <div class="section-heading"><h2>Player Ranking</h2><p>Points are calculated from level entries.</p></div>
+      <div id="playerList" class="table-list"></div>
+    </section>
+
+    <section id="creators" class="panel">
+      <div class="section-heading"><h2>Creator Points</h2><p>Creator points are calculated from levels on the list.</p></div>
+      <div id="creatorList" class="table-list"></div>
+    </section>
+
+    <section id="rules" class="panel">
+      <div class="section-heading"><h2>Rules</h2><p>List and submission standards.</p></div>
+      <div class="rules-grid">
+        <article class="rules-card"><h3>Normal List Rules</h3><ol id="normalRules"></ol></article>
+        <article class="rules-card"><h3>Submission Rules</h3><ol id="submissionRules"></ol></article>
+        <article class="rules-card"><h3>Submitting Format</h3><ul id="submitFormat"></ul></article>
+      </div>
+    </section>
   </main>
 
-  <footer>
-    <span>Geometry Dash inspired list • Edit everything in <b>data.js</b></span>
+  <footer class="footer">
+    <span id="footerText"></span>
   </footer>
 
+  <script src="settings.js"></script>
   <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
