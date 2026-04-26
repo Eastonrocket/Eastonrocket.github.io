@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HPL Data Editor</title>
+<style>
+body{font-family:Arial,sans-serif;background:#0f1117;color:#f2f4f8;margin:0;padding:22px}
+h1{margin-top:0}.wrap{max-width:1100px;margin:auto}.card{background:#171a23;border:1px solid #30364a;border-radius:14px;padding:16px;margin:14px 0}
+label{display:block;margin-top:10px;color:#aab0c0}
+input{width:100%;padding:9px;border-radius:8px;border:1px solid #30364a;background:#202432;color:#fff;margin-top:5px}
+button{padding:10px 13px;border:0;border-radius:8px;background:#7aa2ff;color:#07101f;font-weight:bold;margin:8px 8px 0 0;cursor:pointer}
+.row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.level{border-top:1px solid #30364a;padding-top:12px;margin-top:12px}
+.small{color:#aab0c0;font-size:13px}@media(max-width:800px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="wrap">
+<h1>HPL Data Editor</h1>
+<p class="small">Edit levels/creators, then download a new <b>data.js</b>. Replace data.js on GitHub and commit it.</p>
+<div class="card"><button onclick="addLevel()">Add Level</button><button onclick="addCreator()">Add Creator</button><button onclick="downloadData()">Download data.js</button><button onclick="copyData()">Copy data.js Text</button></div>
+<div class="card"><h2>Site Info</h2><div class="row"><label>Title<input id="title"></label><label>Subtitle<input id="subtitle"></label><label>Discord<input id="discord"></label><label>Theme<input id="theme"></label></div></div>
+<div class="card"><h2>Levels</h2><div id="levels"></div></div>
+<div class="card"><h2>Manual Creator Rankings</h2><p class="small">These are manual. Main list creators do not automatically count.</p><div id="creators"></div></div>
+</div>
+<script src="data.js"></script>
+<script>
+let data=JSON.parse(JSON.stringify(HPL_DATA));
+function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function load(){title.value=data.site.title||'';subtitle.value=data.site.subtitle||'';discord.value=data.site.discord||'';theme.value=data.site.theme||'neon';renderLevels();renderCreators()}
+function syncSite(){data.site.title=title.value;data.site.subtitle=subtitle.value;data.site.discord=discord.value;data.site.theme=theme.value}
+function renderLevels(){levels.innerHTML=data.levels.map((l,i)=>`<div class="level"><h3>Level ${i+1}</h3><button onclick="data.levels.splice(${i},1);renderLevels()">Delete</button><div class="row">
+<label>Rank<input onchange="data.levels[${i}].rank=this.value" value="${safe(l.rank)}"></label>
+<label>Name<input onchange="data.levels[${i}].name=this.value" value="${safe(l.name)}"></label>
+<label>ID<input onchange="data.levels[${i}].id=this.value" value="${safe(l.id)}"></label>
+<label>Creator<input onchange="data.levels[${i}].creator=this.value" value="${safe(l.creator)}"></label>
+<label>Creator URL<input onchange="data.levels[${i}].creatorUrl=this.value" value="${safe(l.creatorUrl)}"></label>
+<label>WR<input onchange="data.levels[${i}].wr=this.value" value="${safe(l.wr)}"></label>
+<label>WR Player<input onchange="data.levels[${i}].wrPlayer=this.value" value="${safe(l.wrPlayer)}"></label>
+<label>WR URL<input onchange="data.levels[${i}].wrUrl=this.value" value="${safe(l.wrUrl)}"></label>
+<label>Showcase URL<input onchange="data.levels[${i}].showcaseUrl=this.value" value="${safe(l.showcaseUrl)}"></label>
+<label>Points<input onchange="data.levels[${i}].points=this.value" value="${safe(l.points)}"></label>
+<label>Notes<input onchange="data.levels[${i}].notes=this.value" value="${safe(l.notes)}"></label>
+</div></div>`).join('')}
+function renderCreators(){creators.innerHTML=(data.creators||[]).map((c,i)=>`<div class="level"><h3>Creator ${i+1}</h3><button onclick="data.creators.splice(${i},1);renderCreators()">Delete</button><div class="row">
+<label>Name<input onchange="data.creators[${i}].name=this.value" value="${safe(c.name)}"></label>
+<label>URL<input onchange="data.creators[${i}].url=this.value" value="${safe(c.url)}"></label>
+<label>Total Levels<input onchange="data.creators[${i}].totalLevels=this.value" value="${safe(c.totalLevels)}"></label>
+<label>Notes<input onchange="data.creators[${i}].notes=this.value" value="${safe(c.notes)}"></label>
+</div></div>`).join('')}
+function addLevel(){data.levels.push({rank:data.levels.length+1,name:'New Level',id:'',creator:'',creatorUrl:'',wr:'',wrPlayer:'',wrUrl:'',showcaseUrl:'',points:0,notes:''});renderLevels()}
+function addCreator(){if(!data.creators)data.creators=[];data.creators.push({name:'New Creator',url:'',totalLevels:1,notes:''});renderCreators()}
+function makeJS(){syncSite();return 'const HPL_DATA = '+JSON.stringify(data,null,2)+';\n'}
+function downloadData(){const blob=new Blob([makeJS()],{type:'text/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='data.js';a.click();URL.revokeObjectURL(a.href)}
+async function copyData(){await navigator.clipboard.writeText(makeJS());alert('Copied data.js text. Paste it into GitHub data.js.')}
+load();
+</script>
+</body></html>

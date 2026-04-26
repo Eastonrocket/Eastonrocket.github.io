@@ -70,6 +70,20 @@ function renderScores(target, key, title) {
     </article>
   `).join("")}</div>`;
 }
+function renderCreators() {
+  const rows = [...(HPL_DATA.creators || [])].sort((a,b)=>Number(b.totalLevels||0)-Number(a.totalLevels||0));
+  if (!rows.length) {
+    document.getElementById("creators").innerHTML = `<article class="info-card"><h3>No creator rankings yet</h3><p>Add chosen creators in <b>data.js</b> under <b>creators</b>. The main list does not automatically count creators.</p></article>`;
+    return;
+  }
+  document.getElementById("creators").innerHTML = `<div class="grid">${rows.map((c,i)=>`
+    <article class="score-card">
+      <h3>#${i+1} ${link(c.url, c.name)}</h3>
+      <p class="points">${safe(c.totalLevels)} accepted levels</p>
+      <p class="meta">${safe(c.notes || "")}</p>
+    </article>
+  `).join("")}</div>`;
+}
 function renderRules() {
   const normal = HPL_DATA.normalRules.map(r => `<article class="info-card"><h3>${safe(r[0])}</h3><p>${safe(r[1])}</p></article>`).join("");
   const sub = HPL_DATA.submissionRules.map(r => `<article class="info-card"><h3>${safe(r[0])}</h3><p>${safe(r[1])}</p></article>`).join("");
@@ -83,7 +97,7 @@ function renderAll() {
   document.getElementById("site-title").textContent = HPL_DATA.site.title;
   document.getElementById("site-subtitle").textContent = HPL_DATA.site.subtitle;
   document.getElementById("discord-link").href = HPL_DATA.site.discord;
-  renderMain(); renderRecords(); renderScores("players","wrPlayer"); renderScores("creators","creator"); renderRules(); renderChanges();
+  renderMain(); renderRecords(); renderScores("players","wrPlayer"); renderCreators(); renderRules(); renderChanges();
 }
 
 document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {

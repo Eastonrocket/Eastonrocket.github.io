@@ -1,18 +1,17 @@
-HPL Website v3 - Neon Inspired
+HPL Website v4 - calmer neon + manual creator rankings + editor
 
-Inspired by your uploaded HTML suggestion: neon gradient background, glowing header, rank cards, and hover scaling.
+WHAT CHANGED:
+- Less glow and less animation.
+- Creator Points is manual and empty by default. Main list creators are not automatically counted.
+- Add chosen creators in data.js under creators.
+- Added editor.html: edit levels/creators and export a new data.js.
 
-HOW TO EDIT:
-1. Open data.js.
-2. Edit the levels array.
-3. Add new levels by copying one object and changing rank/name/id/creator/wr/links/points.
-4. Save and upload to GitHub.
-
-FILES:
-- index.html = website structure
-- style.css = all styling/themes
-- script.js = tabs/search/points logic
-- data.js = all customizable information
+HOW TO EDIT WITH editor.html:
+1. Open editor.html in your browser.
+2. Add/edit levels or creators.
+3. Click Download data.js.
+4. On GitHub, replace data.js and Commit changes.
 
 GITHUB PAGES:
-Upload these files to a public repo, then Settings > Pages > Deploy from branch > main > root.
+Upload all files to repo root, then Settings > Pages > Deploy from branch > main > root.
+You can edit files directly with the pencil icon, or press . in your repo to use github.dev.

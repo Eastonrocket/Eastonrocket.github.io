@@ -63,6 +63,11 @@ const HPL_DATA = {
     }
   ],
 
+  creators: [
+    // Manual creator rankings. Add only chosen creators here.
+    // { name: "CreatorName", url: "https://www.youtube.com/@Creator", totalLevels: 3, notes: "Made accepted HPL levels" }
+  ],
+
   normalRules: [
     ["Humanly Possible Requirement", "Levels must be technically possible for a human to complete. The amount of time required to verify does not matter, as long as a human could potentially beat it."],
     ["Verified & Unverified Levels Allowed", "Both verified and unverified levels may qualify for placement on the list."],
@@ -81,6 +86,7 @@ const HPL_DATA = {
 
   changelog: [
     "Created neon-inspired HPL website layout.",
-    "Added main list, records, player points, creator points, and rules tabs."
+    "Added main list, records, player points, manual creator points, and rules tabs.",
+    "v4: Reduced glow/animation and added local editor.html."
   ]
 };
