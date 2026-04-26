@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HPL</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-glow"></div>
+    <h1 id="site-title">HPL</h1>
+    <p id="site-subtitle"></p>
+    <div class="hero-actions">
+      <a id="discord-link" class="button" target="_blank" rel="noopener">Join Discord</a>
+      <button id="theme-toggle" class="button ghost">Switch Style</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="tabs">
+      <button class="tab active" data-tab="main">Main List</button>
+      <button class="tab" data-tab="records">Records</button>
+      <button class="tab" data-tab="players">Player Points</button>
+      <button class="tab" data-tab="creators">Creator Points</button>
+      <button class="tab" data-tab="rules">Rules</button>
+      <button class="tab" data-tab="changes">Changelog</button>
+    </nav>
+
+    <section class="toolbar">
+      <input id="search" placeholder="Search levels, creators, players, IDs..." />
+      <select id="sort-mode">
+        <option value="rank">Sort by rank</option>
+        <option value="points">Sort by points</option>
+        <option value="wr">Sort by WR text</option>
+      </select>
+    </section>
+
+    <section id="main" class="panel active"></section>
+    <section id="records" class="panel"></section>
+    <section id="players" class="panel"></section>
+    <section id="creators" class="panel"></section>
+    <section id="rules" class="panel"></section>
+    <section id="changes" class="panel"></section>
+  </main>
+
+  <footer>
+    <span>Geometry Dash inspired list • Edit everything in <b>data.js</b></span>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
